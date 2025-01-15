@@ -40,9 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
     double total = subtotal + 12.50;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE3EFF7),
+      backgroundColor: const Color.fromARGB(255, 126, 192, 233),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF90A4AE),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -159,8 +159,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   const Text(
                     '250 mg',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+                      fontSize: 18,
+                      color: Color.fromARGB(255, 178, 178, 178),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -268,7 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Container(
                       height: 92,
                       decoration: BoxDecoration(
-                        color: Colors.blueAccent,
+                        color: const Color.fromARGB(250, 146, 182, 244),
                         borderRadius: BorderRadius.circular(50),
                         boxShadow: [
                           BoxShadow(
