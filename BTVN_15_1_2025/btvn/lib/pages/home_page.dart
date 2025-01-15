@@ -6,50 +6,44 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => _TrangChuState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final FirestoreService firestoreService = FirestoreService();
-  final TextEditingController classIDController = TextEditingController();
-  final TextEditingController classNameController = TextEditingController();
-  final TextEditingController studentCountController = TextEditingController();
+class _TrangChuState extends State<HomePage> {
+  final DichVuFirestore dichVuFirestore = DichVuFirestore();
+  final TextEditingController maLopController = TextEditingController();
+  final TextEditingController tenLopController = TextEditingController();
+  final TextEditingController siSoController = TextEditingController();
 
-  void _clearControllers() {
-    classIDController.clear();
-    classNameController.clear();
-    studentCountController.clear();
-  }
-
-  // Hộp thoại thêm hoặc cập nhật lớp học
-  void openClassBox(
-      {String? docID,
-      String? initialClassID,
-      String? initialClassName,
-      int? initialStudentCount}) {
-    if (docID != null) {
-      classIDController.text = initialClassID ?? '';
-      classNameController.text = initialClassName ?? '';
-      studentCountController.text = initialStudentCount?.toString() ?? '';
+  void moHopThoai({
+    String? maTaiLieu,
+    String? maLopHienTai,
+    String? tenLopHienTai,
+    int? siSoHienTai,
+  }) {
+    if (maTaiLieu != null) {
+      maLopController.text = maLopHienTai ?? '';
+      tenLopController.text = tenLopHienTai ?? '';
+      siSoController.text = siSoHienTai?.toString() ?? '';
     }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(docID == null ? "Thêm Lớp Học" : "Cập Nhật Lớp Học"),
+        title: Text(maTaiLieu == null ? "Thêm Lớp Học" : "Cập Nhật Lớp Học"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: classIDController,
+              controller: maLopController,
               decoration: const InputDecoration(labelText: "Mã Lớp"),
             ),
             TextField(
-              controller: classNameController,
+              controller: tenLopController,
               decoration: const InputDecoration(labelText: "Tên Lớp"),
             ),
             TextField(
-              controller: studentCountController,
+              controller: siSoController,
               decoration: const InputDecoration(labelText: "Sĩ Số"),
               keyboardType: TextInputType.number,
             ),
@@ -58,30 +52,28 @@ class _HomePageState extends State<HomePage> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              if (docID == null) {
-                // Thêm mới
-                firestoreService.addClass(
-                  classIDController.text,
-                  classNameController.text,
-                  int.parse(studentCountController.text),
+              if (maTaiLieu == null) {
+                dichVuFirestore.themLopHoc(
+                  maLopController.text,
+                  tenLopController.text,
+                  int.parse(siSoController.text),
                 );
               } else {
-                // Cập nhật
-                firestoreService.updateClass(
-                  docID,
-                  classIDController.text,
-                  classNameController.text,
-                  int.parse(studentCountController.text),
+                dichVuFirestore.capNhatLopHoc(
+                  maTaiLieu,
+                  maLopController.text,
+                  tenLopController.text,
+                  int.parse(siSoController.text),
                 );
               }
-              _clearControllers();
+              _xoaNoiDungController();
               Navigator.pop(context);
             },
-            child: Text(docID == null ? "Thêm" : "Cập Nhật"),
+            child: Text(maTaiLieu == null ? "Thêm" : "Cập Nhật"),
           ),
           TextButton(
             onPressed: () {
-              _clearControllers();
+              _xoaNoiDungController();
               Navigator.pop(context);
             },
             child: const Text("Hủy"),
@@ -91,63 +83,65 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _xoaNoiDungController() {
+    maLopController.clear();
+    tenLopController.clear();
+    siSoController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Quản Lý Lớp Học")),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => openClassBox(),
+        onPressed: () => moHopThoai(),
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: firestoreService.getClassesStream(),
+        stream: dichVuFirestore.layDanhSachLopHoc(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (snapshot.hasData) {
+            List danhSachLop = snapshot.data!.docs;
+
+            return ListView.builder(
+              itemCount: danhSachLop.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot taiLieu = danhSachLop[index];
+                String maTaiLieu = taiLieu.id;
+
+                Map<String, dynamic> duLieu =
+                    taiLieu.data() as Map<String, dynamic>;
+                String maLop = duLieu['maLop'];
+                String tenLop = duLieu['tenLop'];
+                int siSo = duLieu['siSo'];
+
+                return ListTile(
+                  title: Text(tenLop),
+                  subtitle: Text("Mã Lớp: $maLop, Sĩ Số: $siSo"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () => moHopThoai(
+                          maTaiLieu: maTaiLieu,
+                          maLopHienTai: maLop,
+                          tenLopHienTai: tenLop,
+                          siSoHienTai: siSo,
+                        ),
+                        icon: const Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        onPressed: () => dichVuFirestore.xoaLopHoc(maTaiLieu),
+                        icon: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
             return const Center(child: Text("Chưa có lớp học nào..."));
           }
-          var classList = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: classList.length,
-            itemBuilder: (context, index) {
-              DocumentSnapshot document = classList[index];
-              String docID = document.id;
-
-              Map<String, dynamic> data =
-                  document.data() as Map<String, dynamic>;
-              String classID = data['classID'];
-              String className = data['className'];
-              int studentCount = data['studentCount'];
-
-              return ListTile(
-                title: Text(className),
-                subtitle: Text("Mã lớp: $classID, Sĩ số: $studentCount"),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Cập nhật
-                    IconButton(
-                      onPressed: () => openClassBox(
-                        docID: docID,
-                        initialClassID: classID,
-                        initialClassName: className,
-                        initialStudentCount: studentCount,
-                      ),
-                      icon: const Icon(Icons.edit),
-                    ),
-                    // Xóa
-                    IconButton(
-                      onPressed: () => firestoreService.deleteClass(docID),
-                      icon: const Icon(Icons.delete),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
         },
       ),
     );

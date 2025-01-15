@@ -1,37 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FirestoreService {
-  final CollectionReference classes =
-      FirebaseFirestore.instance.collection('classes');
+class DichVuFirestore {
+  final CollectionReference lopHocCollection =
+      FirebaseFirestore.instance.collection('lop_hoc');
 
-  // CREATE: Thêm lớp học
-  Future<void> addClass(String classID, String className, int studentCount) {
-    return classes.add({
-      'classID': classID,
-      'className': className,
-      'studentCount': studentCount,
-      'timestamp': Timestamp.now(),
+  // Thêm lớp học
+  Future<void> themLopHoc(String maLop, String tenLop, int siSo) {
+    return lopHocCollection.add({
+      'maLop': maLop,
+      'tenLop': tenLop,
+      'siSo': siSo,
+      'thoiGian': Timestamp.now(),
     });
   }
 
-  // READ: Lấy danh sách lớp học
-  Stream<QuerySnapshot> getClassesStream() {
-    return classes.orderBy("timestamp", descending: true).snapshots();
+  // Lấy danh sách lớp học
+  Stream<QuerySnapshot> layDanhSachLopHoc() {
+    return lopHocCollection.orderBy("thoiGian", descending: true).snapshots();
   }
 
-  // UPDATE: Cập nhật thông tin lớp học
-  Future<void> updateClass(String docID, String newClassID, String newClassName,
-      int newStudentCount) {
-    return classes.doc(docID).update({
-      'classID': newClassID,
-      'className': newClassName,
-      'studentCount': newStudentCount,
-      'timestamp': Timestamp.now(),
+  // Cập nhật lớp học
+  Future<void> capNhatLopHoc(
+      String maTaiLieu, String maLopMoi, String tenLopMoi, int siSoMoi) {
+    return lopHocCollection.doc(maTaiLieu).update({
+      'maLop': maLopMoi,
+      'tenLop': tenLopMoi,
+      'siSo': siSoMoi,
+      'thoiGian': Timestamp.now(),
     });
   }
 
-  // DELETE: Xóa lớp học
-  Future<void> deleteClass(String docID) {
-    return classes.doc(docID).delete();
+  // Xóa lớp học
+  Future<void> xoaLopHoc(String maTaiLieu) {
+    return lopHocCollection.doc(maTaiLieu).delete();
   }
 }
