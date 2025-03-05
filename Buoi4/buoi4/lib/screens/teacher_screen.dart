@@ -30,30 +30,52 @@ class TeacherScreen extends StatelessWidget {
             itemCount: teachers.length,
             itemBuilder: (context, index) {
               var teacher = teachers[index];
-              return ListTile(
-                title: Text(teacher['name']),
-                subtitle: Text(teacher['subject']),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        _showTeacherDialog(context, firestoreService, schoolId,
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(10),
+                  leading:
+                      const Icon(Icons.person, size: 40, color: Colors.blue),
+                  title: Text(
+                    teacher['name'],
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('📚 Môn: ${teacher['subject']}',
+                          style: const TextStyle(fontSize: 14)),
+                      Text('📧 Email: ${teacher['email']}',
+                          style: const TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          _showTeacherDialog(
+                            context,
+                            firestoreService,
+                            schoolId,
                             teacherId: teacher.id,
                             currentName: teacher['name'],
                             currentEmail: teacher['email'],
-                            currentSubject: teacher['subject']);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        _confirmDelete(
-                            context, firestoreService, schoolId, teacher.id);
-                      },
-                    ),
-                  ],
+                            currentSubject: teacher['subject'],
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          _confirmDelete(
+                              context, firestoreService, schoolId, teacher.id);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -83,21 +105,30 @@ class TeacherScreen extends StatelessWidget {
         return AlertDialog(
           title: Text(
               teacherId == null ? 'Thêm Giáo viên' : 'Chỉnh sửa Giáo viên'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Tên')),
-              TextField(
+                  decoration: const InputDecoration(labelText: 'Tên giáo viên'),
+                ),
+                TextField(
                   controller: emailController,
-                  decoration: const InputDecoration(labelText: 'Email')),
-              TextField(
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
+                TextField(
                   controller: subjectController,
-                  decoration: const InputDecoration(labelText: 'Môn dạy')),
-            ],
+                  decoration: const InputDecoration(labelText: 'Môn dạy'),
+                ),
+              ],
+            ),
           ),
           actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
             ElevatedButton(
               onPressed: () {
                 if (teacherId == null) {

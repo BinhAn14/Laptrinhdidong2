@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/firestore_service.dart';
-import 'school_screen.dart';
 import 'login_screen.dart';
+import 'school_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -86,18 +86,83 @@ class HomeScreen extends StatelessWidget {
             itemCount: schools.length,
             itemBuilder: (context, index) {
               var school = schools[index];
+
               return ListTile(
                 title: Text(school['name']),
                 subtitle: Text(school['address']),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => firestoreService.deleteSchool(school.id),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        TextEditingController nameController =
+                            TextEditingController(text: school['name']);
+                        TextEditingController addressController =
+                            TextEditingController(text: school['address']);
+                        TextEditingController phoneController =
+                            TextEditingController(text: school['phone']);
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Chỉnh sửa Trường Học'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    controller: nameController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Tên Trường'),
+                                  ),
+                                  TextField(
+                                    controller: addressController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Địa chỉ'),
+                                  ),
+                                  TextField(
+                                    controller: phoneController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Số điện thoại'),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Hủy'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    firestoreService.updateSchool(
+                                      school.id,
+                                      nameController.text,
+                                      addressController.text,
+                                      phoneController.text,
+                                    );
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Lưu'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => firestoreService.deleteSchool(school.id),
+                    ),
+                  ],
                 ),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SchoolScreen(school.id)),
+                      builder: (context) => SchoolScreen(school.id),
+                    ),
                   );
                 },
               );
