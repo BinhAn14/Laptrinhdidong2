@@ -68,35 +68,31 @@ class FirestoreService {
   }
 
   // 📌 Học sinh
-  Stream<QuerySnapshot> getStudents(String schoolId) {
-    return _db
-        .collection('schools')
-        .doc(schoolId)
-        .collection('students')
-        .snapshots();
-  }
-
   Future<void> addStudent(
       String schoolId, String name, int age, String studentClass) async {
-    await _db
-        .collection('schools')
-        .doc(schoolId)
-        .collection('students')
-        .add({'name': name, 'age': age, 'class': studentClass});
-  }
-
-  Future<void> updateStudent(String schoolId, String studentId, String name,
-      int age, String studentClass) async {
-    await _db
-        .collection('schools')
-        .doc(schoolId)
-        .collection('students')
-        .doc(studentId)
-        .update({
+    await _db.collection('students').add({
+      'schoolId': schoolId,
       'name': name,
       'age': age,
       'class': studentClass,
     });
+  }
+
+  Future<void> updateStudent(String studentId, String schoolId, String name,
+      int age, String studentClass) async {
+    await _db.collection('students').doc(studentId).update({
+      'schoolId': schoolId,
+      'name': name,
+      'age': age,
+      'class': studentClass,
+    });
+  }
+
+  Stream<QuerySnapshot> getStudents(String schoolId) {
+    return _db
+        .collection('students')
+        .where('schoolId', isEqualTo: schoolId)
+        .snapshots();
   }
 
   Future<void> deleteStudent(String schoolId, String studentId) async {
