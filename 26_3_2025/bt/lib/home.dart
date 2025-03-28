@@ -4,15 +4,18 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _MyWidgetState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyWidgetState extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Home Page"),
+      appBar: AppBar(title: Text("Home")),
+      body: Center(
+        child: Text(
+          "Thông báo",
+        ),
       ),
     );
   }
