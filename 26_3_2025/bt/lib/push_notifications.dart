@@ -8,7 +8,6 @@ class PushNotifications {
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  // Request notification permission
   static Future init() async {
     await _firebaseMessaging.requestPermission(
       alert: true,
@@ -23,7 +22,6 @@ class PushNotifications {
     getFCMToken();
   }
 
-  // Get the FCM device token
   static Future<String?> getFCMToken({int maxRetries = 3}) async {
     try {
       String? token;
@@ -34,7 +32,7 @@ class PushNotifications {
         print("Web device token: $token");
       } else {
         token = await _firebaseMessaging.getToken();
-        print("Android/iOS device token: $token");
+        print("Android/iOS device token: $token"); 
       }
       return token;
     } catch (e) {
@@ -49,7 +47,6 @@ class PushNotifications {
     }
   }
 
-  // Initialize local notifications
   static Future localNotiInit() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -74,13 +71,11 @@ class PushNotifications {
     );
   }
 
-  // Handle notification tap in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!
         .pushNamed("/message", arguments: notificationResponse);
   }
 
-  // Show a simple notification
   static Future showSimpleNotification({
     required String title,
     required String body,

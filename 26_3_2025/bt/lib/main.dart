@@ -12,14 +12,12 @@ import 'home.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
-// function to lisen to background changes
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
   if (message.notification != null) {
     print("Một số thông báo đã nhận");
   }
 }
 
-// to handle notification on foreground on web platform
 void showNotification({required String title, required String body}) {
   showDialog(
     context: navigatorKey.currentContext!,
@@ -43,7 +41,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // on background notification tapped
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     if (message.notification != null) {
       print("Đã nhấn vào thông báo nền");
@@ -52,14 +49,13 @@ void main() async {
   });
 
   PushNotifications.init();
-  // only initialize if platform is not web
+
   if (!kIsWeb) {
     PushNotifications.localNotiInit();
   }
-  // Listen to background notifications
+
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
 
-  // to handle foreground notifications
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     String payloadData = jsonEncode(message.data);
     print("Có một tin nhắn ở phía trước");
@@ -77,7 +73,6 @@ void main() async {
     }
   });
 
-  // for handling in terminated state
   final RemoteMessage? message =
       await FirebaseMessaging.instance.getInitialMessage();
 
@@ -93,10 +88,10 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       title: 'Thông báo',
       theme: ThemeData(
